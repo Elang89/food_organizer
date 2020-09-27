@@ -5,8 +5,12 @@ authors = ["Elang89 <elang8899@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "food"
+name = "food_lib"
 path = "src/lib.rs"
+
+[[bin]]
+name = "food"
+path = "src/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -15,8 +19,13 @@ actix-web = "3.0.1"
 actix-rt = "1.1.1"
 serde = { version = "1.0.116", features = ["derive"] }
 serde_json = "1.0.57"
-diesel = { version = "1.4.5", features = ["postgres", "r2d2"]}
-uuid = { version = "0.8.1", features = ["serde", "v4"] }
+diesel = { version = "1.4.5", features = ["postgres", "r2d2", "chrono", "uuid"]}
+diesel_migrations = "1.4.0"
+uuid = { version = "0.6.5", features = ["serde", "v4"] }
 chrono = { version = "0.4.15", features = ["serde"] }
 env_logger = "0.7.1"
 failure = "0.1.8"
+dotenv = "0.15.0"
+
+[dev-dependencies]
+fake = "2.2.3"
