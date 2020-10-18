@@ -24,7 +24,6 @@ diesel_migrations = "1.4.0"
 uuid = { version = "0.6.5", features = ["serde", "v4"] }
 chrono = { version = "0.4.15", features = ["serde"] }
 env_logger = "0.7.1"
-failure = "0.1.8"
 dotenv = "0.15.0"
 
 [dev-dependencies]

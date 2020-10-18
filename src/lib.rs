@@ -23,7 +23,7 @@ pub mod embedded_migrations {
     use diesel::pg::PgConnection;
     use diesel_migrations::embed_migrations;
 
-    embed_migrations!();
+    embed_migrations!("migrations/");
 
     pub fn run(connection: &PgConnection, db_name: &str) {
         embedded_migrations::run(connection)
