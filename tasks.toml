@@ -1,7 +1,5 @@
-[env]
-TEST_URL = "postgres://root:password@"
-TEST_DATABASE = "testdb"
-
+[config]
+on_error_task = "test_teardown"
 
 [tasks.format]
 install_crate = "rustfmt"
@@ -22,14 +20,21 @@ command = "cargo"
 args = ["test"]
 dependencies = ["clean"]
 
-[tasks.food-flow]
-dependences = [
-    "format",
-    "build",
-    "test"
+[tasks.test-flow]
+dependencies = [
+    "test_migrations",
+    "test",
+    "test_teardown",
 ]
 
-[tasks.setup]
+[tasks.food-flow]
+dependencies = [
+    "format",
+    "build",
+    "test-flow"
+]
+
+[tasks.test_setup]
 script_runner = "@rust"
 script = [
 '''
@@ -40,6 +45,8 @@ extern crate diesel;
 
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
+use std::env;
+
 
 fn main() {
     let postgres_url = "postgres://root:password@localhost:5432/postgres";
@@ -51,11 +58,15 @@ fn main() {
     query
         .execute(&conn)
         .expect("Could not create database testdb, exiting");
+
+    let conn2 =
+        PgConnection::establish(&db_url).expect("Could not connect to database on test run, exiting");
+
 }
 '''
 ]
 
-[tasks.teardown]
+[tasks.test_teardown]
 script_runner = "@rust"
 script = [
 '''
@@ -83,3 +94,8 @@ fn main() {
 ]
 
 
+[tasks.test_migrations]
+env = { "DATABASE_URL" = "postgres://root:password@localhost:5432/testdb" }
+command = "diesel"
+args = ["migration", "run"]
+dependencies = ["test_setup"]
