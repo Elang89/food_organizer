@@ -19,7 +19,7 @@ This is an API to store personal food data.
 1. Run `docker compose up -d` to start Postgres Database
 2. Run `cargo run` to run Actix-Web API
 
-### Routes 
+### Routes
 
 *GET* - http://localhost:3000/api/recipes
 *POST* - http://localhost:3000/api/recipes
