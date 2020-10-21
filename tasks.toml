@@ -1,0 +1,101 @@
+[config]
+on_error_task = "test_teardown"
+
+[tasks.format]
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--", "--emit=files"]
+
+[tasks.clean]
+comand = "cargo"
+args = ["clean"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+dependencies = ["clean"]
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+dependencies = ["clean"]
+
+[tasks.test-flow]
+dependencies = [
+    "test_migrations",
+    "test",
+    "test_teardown",
+]
+
+[tasks.food-flow]
+dependencies = [
+    "format",
+    "build",
+    "test-flow"
+]
+
+[tasks.test_setup]
+script_runner = "@rust"
+script = [
+'''
+//! ```cargo
+//! [dependencies]
+//! diesel = { version = "1.4.5", features = ["postgres"] }
+extern crate diesel;
+
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+use std::env;
+
+
+fn main() {
+    let postgres_url = "postgres://root:password@localhost:5432/postgres";
+    let db_url = "postgres://root:password@localhost:5432/testdb";
+    let conn =
+        PgConnection::establish(&postgres_url).expect("Could not connect to database on test run, exiting");
+    let query = diesel::sql_query("CREATE DATABASE testdb");
+
+    query
+        .execute(&conn)
+        .expect("Could not create database testdb, exiting");
+
+    let conn2 =
+        PgConnection::establish(&db_url).expect("Could not connect to database on test run, exiting");
+
+}
+'''
+]
+
+[tasks.test_teardown]
+script_runner = "@rust"
+script = [
+'''
+//! ```cargo
+//! [dependencies]
+//! diesel = { version = "1.4.5", features = ["postgres"] }
+extern crate diesel;
+
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
+
+fn main() {
+    let postgres_url = "postgres://root:password@localhost:5432/postgres";
+    let conn =
+        PgConnection::establish(&postgres_url).expect("Could not connect to database, exiting");
+
+
+    let query = diesel::sql_query("DROP DATABASE IF EXISTS testdb WITH (FORCE)");
+
+    query
+        .execute(&conn)
+        .expect("Failure dropping database testdb, exiting");
+}
+'''
+]
+
+
+[tasks.test_migrations]
+env = { "DATABASE_URL" = "postgres://root:password@localhost:5432/testdb" }
+command = "diesel"
+args = ["migration", "run"]
+dependencies = ["test_setup"]
