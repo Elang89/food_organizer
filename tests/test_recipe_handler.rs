@@ -52,3 +52,13 @@ async fn test_create_recipe() {
 
     assert!(resp.status().is_success());
 }
+
+#[rstest]
+#[actix_rt::test]
+#[ignore]
+async fn test_update_recipe() {}
+
+#[rstest]
+#[actix_rt::test]
+#[ignore]
+async fn test_delete_recipe() {}
