@@ -11,8 +11,9 @@ This is an API to store personal food data.
 
 1. Docker
 2. Docker Compose
-3. Rust Stable
-4. Cargo Make (to run tests)
+3. [Rust Stable](https://www.rust-lang.org/tools/install)
+4. [Cargo Make](https://github.com/sagiegurari/cargo-make) (to run tests)
+5. [Diesel CLI](https://github.com/diesel-rs/diesel/tree/master/diesel_cli) (to run diesel's migrations)
 
 ## Steps to run
 
