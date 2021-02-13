@@ -15,8 +15,10 @@ jobs:
           profile: minimal
           toolchain: stable
 
-      - name: Run Tests
+      - name: Add Cargo Make
         uses: davidB/rust-cargo-make@v1
         with:
           version: latest
+
+      - name: Run Tests
         run: cargo make --makefile tasks.toml test-flow

@@ -27,7 +27,7 @@ pub mod embedded_migrations {
 
     pub fn run(connection: &PgConnection, db_name: &str) {
         embedded_migrations::run(connection)
-            .expect(format!("Unable to run migrations on {}", db_name).as_str());
+            .unwrap_or_else(|_| panic!("Unable to run migrations on {}", db_name));
     }
 }
 
