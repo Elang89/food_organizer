@@ -22,3 +22,6 @@ jobs:
 
       - name: Run Tests
         run: cargo make --makefile tasks.toml test-flow
+
+      - name: Cache Dependencies
+        uses: Swatinem/rust-cache@v1
