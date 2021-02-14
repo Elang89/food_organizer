@@ -44,12 +44,14 @@ script = [
 use std::process::Command;
 
 fn main() {
-    Command::new("docker-compose")
+    let mut child = Command::new("docker-compose")
         .arg("up")
         .arg("-d")
         .arg("--build")
         .spawn()
         .expect("Unable to start testing docker containers");
+
+    let _result = child.wait().expect("Failed to wait for command to finish");
 }
 
 '''
@@ -124,12 +126,15 @@ script = [
 use std::process::Command;
 
 fn main() {
-    Command::new("docker-compose")
+    let mut child = Command::new("docker-compose")
         .arg("rm")
         .arg("-f")
         .arg("-s")
         .spawn()
         .expect("Unable to execute docker teardown");
+
+
+    let _result = child.wait().expect("Failed to wait for command to finish");
 }
 
 '''
