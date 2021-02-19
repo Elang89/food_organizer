@@ -5,7 +5,7 @@
 // use food_lib::schema::recipes;
 
 // const TEST_DB_NAME: &str = "testdb";
-pub const TEST_DB_URL: &str = "postgres://root:password@localhost:5432/testdb";
+pub const TEST_DB_URL: &str = "postgres://root:password@localhost:5433/testdb";
 
 // pub fn insert_recipe(&self) -> Result<Recipe, diesel::result::Error> {
 //     let name: String = Word().fake();

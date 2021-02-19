@@ -1,7 +1,9 @@
-use crate::actions::recipe_actions::{insert_new_recipe, retrieve_recipes};
 use crate::db::DbPool;
-use crate::models::recipe::NewRecipe;
 use crate::resource::ERROR_DB_CONNECTION;
+use crate::{
+    actions::recipe_actions::{insert_new_recipe, retrieve_recipes},
+    models::recipe::NewRecipeWithIngredients,
+};
 
 use actix_web::{delete, get, patch, post, web, Error, HttpResponse};
 
@@ -26,7 +28,7 @@ pub async fn get_recipe_by_id() -> Option<HttpResponse> {
 #[post("/recipes")]
 pub async fn create_recipe(
     pool: web::Data<DbPool>,
-    data: web::Json<NewRecipe>,
+    data: web::Json<NewRecipeWithIngredients>,
 ) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect(ERROR_DB_CONNECTION);
     let recipe = web::block(move || insert_new_recipe(&conn, &data))

@@ -31,7 +31,7 @@ pub mod embedded_migrations {
     }
 }
 
-#[actix_rt::main]
+#[actix_web::main]
 pub async fn run() -> io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();

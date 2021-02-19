@@ -1,5 +1,15 @@
 [config]
-on_error_task = "test_teardown"
+on_error_task = "docker_teardown"
+
+
+[env]
+POSTGRES_URL = "postgres://root:password@localhost:5433/postgres"
+DB_URL = "postgres://root:password@localhost:5433/testdb"
+DB_NAME = "testdb"
+DB_USER = "root"
+DB_PASSWORD = "password"
+RUSTC_WRAPPER="sccache"
+CARGO_MAKE_COVERAGE_PROVIDER = "kcov"
 
 [tasks.format]
 install_crate = "rustfmt"
@@ -25,8 +35,7 @@ dependencies = [
     "docker_setup",
     "test_setup",
     "test",
-    "test_teardown",
-    "docker_teardown"
+    "docker_teardown",
 ]
 
 [tasks.food-flow]
@@ -38,23 +47,21 @@ dependencies = [
 
 
 [tasks.docker_setup]
-script_runner = "@rust"
-script = [
-'''
-use std::process::Command;
-
-fn main() {
-    let mut child = Command::new("docker-compose")
-        .arg("up")
-        .arg("-d")
-        .arg("--build")
-        .spawn()
-        .expect("Unable to start testing docker containers");
-
-    let _result = child.wait().expect("Failed to wait for command to finish");
-}
-
-'''
+command = "docker"
+args = [
+        "run",
+        "-d",
+        "-e",
+        "POSTGRES_USER=${DB_USER}",
+        "-e",
+        "POSTGRES_PASSWORD=${DB_PASSWORD}",
+        "-e",
+        "POSTGRES_DB=${DB_NAME}",
+        "-p",
+        "5433:5432",
+        "--name",
+        "testdb",
+        "postgres:13.0-alpine"
 ]
 
 [tasks.test_setup]
@@ -72,22 +79,25 @@ extern crate diesel_migrations;
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
 use diesel_migrations::run_pending_migrations;
+use std::env;
 
 fn main() {
-    let postgres_url = "postgres://root:password@localhost:5432/postgres";
-    let db_url = "postgres://root:password@localhost:5432/testdb";
+    let db_url = env::var("DB_URL").expect("Unable to retrieve DB_URL");
     let conn =
-        PgConnection::establish(&postgres_url).expect("Could not connect to database on test run, exiting");
-    let query = diesel::sql_query("CREATE DATABASE testdb");
+        PgConnection::establish(&db_url).expect("Could not connect to database on test run, exiting");
+
+    run_pending_migrations(&conn).expect("Could not run migrations, exiting");
+
+    let query = diesel::sql_query("INSERT INTO ingredients (id, name, description) VALUES
+        ('390bf411-1aa7-48f4-a6fc-d161e0ddf63c', 'cheese', 'something'),
+        ('9489cca0-3e7a-4571-9b58-96a4e3fe3e55', 'ham', 'something'),
+        ('bdeb204f-c85e-4883-9ca4-4061f2624268', 'pickles', 'something'),
+        ('fb2c63f7-ac81-4abc-9e5f-8744202aeabc', 'tomato', 'something')
+    ");
 
     query
         .execute(&conn)
-        .expect("Could not create database testdb, exiting");
-
-    let conn2 =
-        PgConnection::establish(&db_url).expect("Could not connect to database on test run, exiting");
-
-    run_pending_migrations(&conn2).expect("Could not run migrations, exiting");
+        .expect("Could not seed database, exiting");
 }
 '''
 ]
@@ -103,9 +113,10 @@ extern crate diesel;
 
 use diesel::prelude::*;
 use diesel::pg::PgConnection;
+use std::env;
 
 fn main() {
-    let postgres_url = "postgres://root:password@localhost:5432/postgres";
+    let postgres_url = env::var("POSTGRES_URL").expect("Unable to retrieve DB_URL");
     let conn =
         PgConnection::establish(&postgres_url).expect("Could not connect to database, exiting");
 
@@ -120,22 +131,6 @@ fn main() {
 ]
 
 [tasks.docker_teardown]
-script_runner = "@rust"
-script = [
-'''
-use std::process::Command;
+command = "docker"
+args = ["rm", "-f", "testdb"]
 
-fn main() {
-    let mut child = Command::new("docker-compose")
-        .arg("rm")
-        .arg("-f")
-        .arg("-s")
-        .spawn()
-        .expect("Unable to execute docker teardown");
-
-
-    let _result = child.wait().expect("Failed to wait for command to finish");
-}
-
-'''
-]

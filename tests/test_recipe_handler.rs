@@ -2,10 +2,13 @@ mod common;
 
 use actix_web::{test, web, App};
 use common::TEST_DB_URL;
+
 use food_lib::db::create_connection;
 use food_lib::handlers::recipe_handler;
-use food_lib::models::recipe::{NewRecipe, Recipe};
+use food_lib::models::ingredient::IngredientForRecipe;
+use food_lib::models::recipe::{NewRecipeWithIngredients, Recipe};
 use rstest::*;
+use uuid::Uuid;
 
 #[rstest]
 #[actix_rt::test]
@@ -39,9 +42,19 @@ async fn test_create_recipe() {
     )
     .await;
 
-    let recipe = NewRecipe {
+    let recipe = NewRecipeWithIngredients {
         name: "Ham Sandwich".to_string(),
         description: "Something".to_string(),
+        ingredients: vec![
+            IngredientForRecipe {
+                id: Uuid::parse_str("390bf411-1aa7-48f4-a6fc-d161e0ddf63c").unwrap(),
+                name: "cheese".to_string(),
+            },
+            IngredientForRecipe {
+                id: Uuid::parse_str("9489cca0-3e7a-4571-9b58-96a4e3fe3e55").unwrap(),
+                name: "ham".to_string(),
+            },
+        ],
     };
 
     let req = test::TestRequest::post()

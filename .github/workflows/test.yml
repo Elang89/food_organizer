@@ -15,6 +15,9 @@ jobs:
           profile: minimal
           toolchain: stable
 
+      - name: Cache Dependencies
+        uses: Swatinem/rust-cache@v1
+
       - name: Add Cargo Make
         uses: davidB/rust-cargo-make@v1
         with:
@@ -22,6 +25,3 @@ jobs:
 
       - name: Run Tests
         run: cargo make --makefile tasks.toml test-flow
-
-      - name: Cache Dependencies
-        uses: Swatinem/rust-cache@v1
