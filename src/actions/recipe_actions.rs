@@ -3,8 +3,8 @@ use crate::{
     models::recipe::{NewRecipe, NewRecipeWithIngredients, Recipe, RecipeIngredient},
     schema::{recipes, recipes_ingredients},
 };
+use diesel::prelude::*;
 use diesel::PgConnection;
-use diesel::{prelude::*, query_dsl::methods::OrderDsl};
 
 pub fn retrieve_recipes(
     conn: &PgConnection,
