@@ -1,0 +1,27 @@
+name: Food Organizer Tests and Code Coverage
+
+on: [push, pull_request]
+
+jobs:
+  grcov:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Cache Dependencies
+        uses: Swatinem/rust-cache@v1
+
+      - name: Add Cargo Make
+        uses: davidB/rust-cargo-make@v1
+        with:
+          version: latest
+
+      - name: Run Tests
+        run: cargo make --makefile tasks.toml test-flow

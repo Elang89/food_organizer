@@ -27,11 +27,11 @@ pub mod embedded_migrations {
 
     pub fn run(connection: &PgConnection, db_name: &str) {
         embedded_migrations::run(connection)
-            .expect(format!("Unable to run migrations on {}", db_name).as_str());
+            .unwrap_or_else(|_| panic!("Unable to run migrations on {}", db_name));
     }
 }
 
-#[actix_rt::main]
+#[actix_web::main]
 pub async fn run() -> io::Result<()> {
     env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
