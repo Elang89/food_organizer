@@ -28,4 +28,8 @@ table! {
 joinable!(recipes_ingredients -> ingredients (ingredient_id));
 joinable!(recipes_ingredients -> recipes (recipe_id));
 
-allow_tables_to_appear_in_same_query!(ingredients, recipes, recipes_ingredients,);
+allow_tables_to_appear_in_same_query!(
+    ingredients,
+    recipes,
+    recipes_ingredients,
+);

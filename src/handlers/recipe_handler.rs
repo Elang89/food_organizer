@@ -1,16 +1,20 @@
-use crate::db::DbPool;
-use crate::resource::ERROR_DB_CONNECTION;
 use crate::{
     actions::recipe_actions::{insert_new_recipe, retrieve_recipes},
+    db::DbPool,
+    models::queries::recipe_queries::SearchInfo,
     models::recipe::NewRecipeWithIngredients,
+    resource::ERROR_DB_CONNECTION,
 };
 
 use actix_web::{delete, get, patch, post, web, Error, HttpResponse};
 
 #[get("/recipes")]
-pub async fn get_all_recipes(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
+pub async fn get_all_recipes(
+    pool: web::Data<DbPool>,
+    search_info: web::Query<SearchInfo>,
+) -> Result<HttpResponse, Error> {
     let conn = pool.get().expect(ERROR_DB_CONNECTION);
-    let recipes = web::block(move || retrieve_recipes(&conn, 50))
+    let recipes = web::block(move || retrieve_recipes(&conn, &search_info))
         .await
         .map_err(|e| {
             eprintln!("{}", e);

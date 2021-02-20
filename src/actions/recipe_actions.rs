@@ -1,16 +1,26 @@
-use crate::models::recipe::{NewRecipe, NewRecipeWithIngredients, Recipe, RecipeIngredient};
-use crate::schema::recipes::all_columns;
-use crate::schema::{recipes, recipes_ingredients};
-use diesel::prelude::*;
+use crate::{
+    models::queries::recipe_queries::SearchInfo,
+    models::recipe::{NewRecipe, NewRecipeWithIngredients, Recipe, RecipeIngredient},
+    schema::{recipes, recipes_ingredients},
+};
 use diesel::PgConnection;
+use diesel::{prelude::*, query_dsl::methods::OrderDsl};
 
 pub fn retrieve_recipes(
     conn: &PgConnection,
-    limit: i64,
+    search_info: &SearchInfo,
 ) -> Result<Vec<Recipe>, diesel::result::Error> {
-    let result = recipes::table
-        .select(all_columns)
-        .limit(limit)
+    let mut query = recipes::table.into_boxed();
+
+    query = match search_info.order_by.as_ref() {
+        "created_at" => query.order_by(recipes::dsl::created_at),
+        "name" => query.order_by(recipes::dsl::name),
+        _ => query,
+    };
+
+    let result = query
+        .select(recipes::all_columns)
+        .limit(search_info.limit)
         .load::<Recipe>(conn)?;
 
     Ok(result)
